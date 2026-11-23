@@ -24,4 +24,5 @@ The SQLite database is created automatically when the app starts. Set
 - `src/streakboard/app.py` - application UI
 - `src/streakboard/db.py` - SQLite initialization and data access
 - `src/streakboard/stats.py` - current and longest streak calculations
+- `src/streakboard/charts.py` - Plotly chart functions
 - `data/` - local SQLite database files

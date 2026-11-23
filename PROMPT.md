@@ -82,3 +82,38 @@ Add a stats.py module with functions to calculate the current streak and longest
 - `PROMPT.md`
 
 **Problems or limitations:** None. Focused streak tests passed, source compilation passed, and the Streamlit health endpoint returned `200` with `ok`.
+
+## Prompt 4
+
+**Prompt (verbatim):**
+
+```text
+Write pytest unit tests in tests/test_stats.py for the streak functions. Cover: no check-ins, one check-in, consecutive days, a gap in the middle, check-ins crossing a month and year boundary, duplicate dates, and a streak where today isn't checked yet but yesterday was. Run the tests and report failures. Update PROMPT.md.
+```
+
+**Summary:** Added pytest unit coverage for all requested streak scenarios and updated dependencies with pytest.
+
+**Files created or changed:**
+- `tests/test_stats.py`
+- `requirements.txt`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Pytest was installed inside `venv` and all 11 tests passed.
+
+## Prompt 5
+
+**Prompt (verbatim):**
+
+```text
+Create charts.py with Plotly chart functions and add a "Dashboard" tab in app.py with: (1) a weekly completion bar chart for the last 8 weeks, (2) a calendar-style heatmap of check-ins for the last 90 days, and (3) a completion rate per habit chart. Add a habit selector to filter the charts. Update PROMPT.md.
+```
+
+**Summary:** Added Plotly chart functions for eight-week check-in totals, a 90-day calendar heatmap, and 90-day completion rates. Added My Habits and Dashboard tabs and a habit selector that filters the dashboard charts.
+
+**Files created or changed:**
+- `src/streakboard/charts.py`
+- `src/streakboard/app.py`
+- `README.md`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Chart smoke checks passed, all 11 pytest tests passed, source compilation passed, and the Streamlit health endpoint returned `200` with `ok`.
