@@ -153,3 +153,21 @@ Add habit categories (e.g., Health, Study, Work, Personal) stored in the databas
 - `PROMPT.md`
 
 **Problems or limitations:** None. An initial ad hoc migration shell check had quoting problems, so migration behavior was added as a focused pytest test. The category migration and streak test suite passed with 13 tests, and the app health endpoint returned `200` with `ok`.
+
+## Prompt 8
+
+**Prompt (verbatim):**
+
+```text
+Add a Manage tab where users can edit a habit's name, description, and category, delete a habit with a confirmation step (also deleting its check-ins), and undo today's check-in. Update PROMPT.md.
+```
+
+**Summary:** Added editable Manage forms for habit name, description, and category; confirmation-safe deletion that relies on the existing SQLite cascade; and an Undo today action for completed habits.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `tests/test_db_mutations.py`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Source compilation passed, all 17 tests passed, deletion-cascade behavior was covered, and the app health endpoint returned `200` with `ok`.

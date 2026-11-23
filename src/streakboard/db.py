@@ -132,3 +132,36 @@ def delete_habit(habit_id: int) -> None:
             "DELETE FROM habits WHERE id = ?",
             (habit_id,),
         )
+
+
+def update_habit(
+    habit_id: int,
+    name: str,
+    description: Optional[str],
+    category: str,
+) -> None:
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        raise ValueError("Habit name cannot be empty.")
+
+    cleaned_category = category if category in CATEGORIES else "Personal"
+    cleaned_description = description.strip() if description else None
+    with get_connection() as connection:
+        connection.execute(
+            """
+            UPDATE habits
+            SET name = ?, description = ?, category = ?
+            WHERE id = ?
+            """,
+            (cleaned_name, cleaned_description, cleaned_category, habit_id),
+        )
+
+
+def undo_today_check_in(habit_id: int, check_in_date: Optional[date] = None) -> bool:
+    today = (check_in_date or date.today()).isoformat()
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "DELETE FROM check_ins WHERE habit_id = ? AND date = ?",
+            (habit_id, today),
+        )
+        return cursor.rowcount > 0

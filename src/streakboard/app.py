@@ -17,6 +17,8 @@ from .db import (
     init_db,
     is_habit_done_today,
     mark_habit_done,
+    undo_today_check_in,
+    update_habit,
 )
 from .stats import calculate_current_streak, calculate_longest_streak
 
@@ -134,6 +136,12 @@ def run() -> None:
                     done_today = is_habit_done_today(habit["id"])
                     if done_today:
                         col_right.success("Done today")
+                        if col_right.button(
+                            "Undo today",
+                            key=f"undo_today_{habit['id']}",
+                        ):
+                            undo_today_check_in(habit["id"])
+                            st.rerun()
                     else:
                         if col_right.button(
                             "Mark done",
@@ -213,14 +221,69 @@ def run() -> None:
         else:
             for habit in habits:
                 with st.container(border=True):
-                    left, right = st.columns([4, 1])
-                    left.markdown(f"**{habit['name']}**")
-                    if habit["description"]:
-                        left.write(habit["description"])
-                    if right.button(
-                        "Delete",
-                        key=f"delete_habit_{habit['id']}",
-                        type="secondary",
+                    with st.form(
+                        f"edit_habit_{habit['id']}",
+                        clear_on_submit=False,
                     ):
-                        delete_habit(habit["id"])
-                        st.rerun()
+                        edited_name = st.text_input(
+                            "Habit name",
+                            value=habit["name"],
+                            key=f"edit_name_{habit['id']}",
+                        )
+                        edited_description = st.text_area(
+                            "Description",
+                            value=habit["description"] or "",
+                            key=f"edit_description_{habit['id']}",
+                        )
+                        current_category_index = CATEGORIES.index(
+                            habit["category"]
+                            if habit["category"] in CATEGORIES
+                            else "Personal"
+                        )
+                        edited_category = st.selectbox(
+                            "Category",
+                            CATEGORIES,
+                            index=current_category_index,
+                            key=f"edit_category_{habit['id']}",
+                        )
+                        if st.form_submit_button("Save changes", type="primary"):
+                            try:
+                                update_habit(
+                                    habit["id"],
+                                    edited_name,
+                                    edited_description,
+                                    edited_category,
+                                )
+                                st.success("Habit updated.")
+                                st.rerun()
+                            except ValueError as error:
+                                st.error(str(error))
+
+                    confirm_key = f"confirm_delete_{habit['id']}"
+                    if st.session_state.get(confirm_key):
+                        st.warning(
+                            f"Delete “{habit['name']}” and all its check-ins?"
+                        )
+                        confirm_col, cancel_col = st.columns(2)
+                        if confirm_col.button(
+                            "Yes, delete",
+                            key=f"confirm_yes_{habit['id']}",
+                            type="primary",
+                        ):
+                            delete_habit(habit["id"])
+                            st.session_state.pop(confirm_key, None)
+                            st.rerun()
+                        if cancel_col.button(
+                            "Cancel",
+                            key=f"confirm_cancel_{habit['id']}",
+                        ):
+                            st.session_state.pop(confirm_key, None)
+                            st.rerun()
+                    else:
+                        if st.button(
+                            "Delete habit",
+                            key=f"delete_habit_{habit['id']}",
+                            type="secondary",
+                        ):
+                            st.session_state[confirm_key] = True
+                            st.rerun()
