@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_PATH = os.getenv("DATABASE_PATH", "streakboard.db")
+DATABASE_PATH = os.getenv("DATABASE_PATH", "data/streakboard.db")
 
 
 def get_connection() -> sqlite3.Connection:

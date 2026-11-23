@@ -1,0 +1,1 @@
+"""StreakBoard application package."""

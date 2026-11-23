@@ -17,3 +17,10 @@ streamlit run app.py
 
 The SQLite database is created automatically when the app starts. Set
 `DATABASE_PATH` in `.env` to use a custom database location.
+
+## Project structure
+
+- `app.py` - Streamlit entry point
+- `src/streakboard/app.py` - application UI
+- `src/streakboard/db.py` - SQLite initialization and data access
+- `data/` - local SQLite database files

@@ -41,3 +41,25 @@ Build the first working version of StreakBoard. Users can add a habit (name, opt
 - `PROMPT.md`
 
 **Problems or limitations:** The first server verification attempt failed because a cleanup command used invalid PowerShell `SilentlyStop` syntax; it was corrected, and the Streamlit health endpoint returned `200` with `ok`. The app is currently running locally on port 8501.
+
+## Prompt 2
+
+**Prompt (verbatim):**
+
+```text
+reorganize files in folders to make strcuture clean and modular
+```
+
+**Summary:** Reorganized the application into a thin root Streamlit entry point, a `src/streakboard` Python package for UI and database code, and a `data` folder for SQLite storage. Updated setup documentation and verified that the reorganized app compiles and is healthy.
+
+**Files created or changed:**
+- `app.py`
+- `src/streakboard/__init__.py`
+- `src/streakboard/app.py`
+- `src/streakboard/db.py`
+- `db.py` - removed from root
+- `README.md`
+- `PROMPT.md`
+- `streakboard.db` - moved to `data/streakboard.db`
+
+**Problems or limitations:** None. The reorganized app returned `200` with `ok` from the Streamlit health endpoint.
