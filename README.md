@@ -61,7 +61,7 @@ StreakBoard requires Python 3.10 or newer.
 ### 1. Clone or download the project
 
 ```powershell
-git clone "<repository-url>"
+git clone "https://github.com/M4NJIND3R/vibe-coded-app"
 cd "StreakBoard"
 ```
 
