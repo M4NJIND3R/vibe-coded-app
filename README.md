@@ -209,20 +209,20 @@ Replace these placeholders with screenshots of the completed application:
 
 Complete this template from your own experience:
 
-1. **What did I want to build, and how closely did I achieve it?**
-   [Describe the original goal and how closely the finished app matches it.]
+1. **What did I want to build, and how closely did I achieve it?**  
+*I wanted to create a app that looks great but is also function. I believe i got exactly what i wanted in terms of fucntionality but lack of transparency and understanding of code given that its not somthing i wrote makes it hard to make large changes like a overhaul of design which i though were lacking even after giving prompt to improve it.*
 
-2. **Which prompts or iteration patterns worked best?**
-   [Describe the prompts that produced the most useful and complete results.]
+2. **Which prompts or iteration patterns worked best?**  
+*Prompts that explicitly gave tasks to complete or asked to to come up with tasks and complete them with specifics worked the best. vague instructions lead to poor outcomes.*
 
-3. **When did the AI make mistakes or produce unsuitable results?**
-   [Describe a bug, wrong assumption, or implementation that needed correction.]
+3. **When did the AI make mistakes or produce unsuitable results?**  
+*Theme of the app was all over the place and it did not account for the color scheme which came ready with streamlit. It overide most color schemes and made it worse. Had to explicitly state to remove unnecessary styles and depend more on default to fix.*
 
-4. **What did I learn about prompting and reviewing AI-generated code?**
-   [Describe which instructions, constraints, and verification steps worked best.]
+4. **What did I learn about prompting and reviewing AI-generated code?**  
+*Prompt needs my clear intentions and planning. I need to use it as a tool rather than a solution. I need to provide explicit small tasks with clear intention to get what i want. Planning early can save a lot of time and tokens by avoiding changes that take a lot of effort to undo.*
 
-5. **What would I do differently on the next vibe coding project?**
-   [Describe process, planning, testing, or documentation changes.]
+5. **What would I do differently on the next vibe coding project?**  
+*I would prepare a plan, strtcuture, rules, coding style, coding requirements and expectation, instructions on assumptions and package to use for code in advance outside of my agent view and then use that to create a file which AI can follow at each turn to and so it strictly adheres to those rules.*
 
-6. **What am I most proud of in this project?**
-   [Describe the feature, workflow, quality, or learning outcome you value most.]
+6. **What am I most proud of in this project?**  
+*Its more advance than many final projects of my previous courses but took fraction of time. Also, my early planning helped me avoid many correction prompts.*
