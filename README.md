@@ -23,4 +23,5 @@ The SQLite database is created automatically when the app starts. Set
 - `app.py` - Streamlit entry point
 - `src/streakboard/app.py` - application UI
 - `src/streakboard/db.py` - SQLite initialization and data access
+- `src/streakboard/stats.py` - current and longest streak calculations
 - `data/` - local SQLite database files

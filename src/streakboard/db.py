@@ -91,3 +91,17 @@ def is_habit_done_today(habit_id: int, check_in_date: Optional[date] = None) -> 
             (habit_id, today),
         ).fetchone()
         return row is not None
+
+
+def get_check_in_dates(habit_id: int) -> list[str]:
+    with get_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT date
+            FROM check_ins
+            WHERE habit_id = ?
+            ORDER BY date ASC
+            """,
+            (habit_id,),
+        ).fetchall()
+        return [row["date"] for row in rows]

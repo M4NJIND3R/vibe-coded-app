@@ -63,3 +63,22 @@ reorganize files in folders to make strcuture clean and modular
 - `streakboard.db` - moved to `data/streakboard.db`
 
 **Problems or limitations:** None. The reorganized app returned `200` with `ok` from the Streamlit health endpoint.
+
+## Prompt 3
+
+**Prompt (verbatim):**
+
+```text
+Add a stats.py module with functions to calculate the current streak and longest streak for a habit from its check-in dates. Show both streaks next to each habit in the UI. Keep the logic separate from Streamlit code. Update PROMPT.md.
+```
+
+**Summary:** Added a pure streak statistics module, a database function to retrieve check-in dates, and UI display of current and longest streaks beside each habit.
+
+**Files created or changed:**
+- `src/streakboard/stats.py`
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `README.md`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Focused streak tests passed, source compilation passed, and the Streamlit health endpoint returned `200` with `ok`.

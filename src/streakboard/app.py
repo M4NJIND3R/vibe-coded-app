@@ -3,10 +3,12 @@ import streamlit as st
 from .db import (
     add_habit,
     get_habits,
+    get_check_in_dates,
     init_db,
     is_habit_done_today,
     mark_habit_done,
 )
+from .stats import calculate_current_streak, calculate_longest_streak
 
 
 def run() -> None:
@@ -43,6 +45,14 @@ def run() -> None:
                 st.markdown(f"**{habit['name']}**")
                 if habit["description"]:
                     st.write(habit["description"])
+
+                check_in_dates = get_check_in_dates(habit["id"])
+                current_streak = calculate_current_streak(check_in_dates)
+                longest_streak = calculate_longest_streak(check_in_dates)
+                st.markdown(
+                    f"**Current streak:** {current_streak} day(s)  |  "
+                    f"**Longest streak:** {longest_streak} day(s)"
+                )
 
                 done_today = is_habit_done_today(habit["id"])
                 if done_today:
