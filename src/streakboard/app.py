@@ -34,20 +34,19 @@ def configure_page() -> None:
     st.markdown(
         """
         <style>
+        /* Preserve Streamlit theme values; override only surfaces that need stronger boundaries. */
         [data-testid="stSidebar"] {
-            background-color: #F8FAFC;
-            border-right: 1px solid #E2E8F0;
+            border-right: 1px solid var(--secondary-background-color);
         }
         [data-testid="stMetric"] {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            background: var(--secondary-background-color);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            box-shadow: none;
         }
-        .stButton > button[kind="primary"] {
-            background-color: #2563EB;
-            border-color: #2563EB;
+        .stButton > button[kind="secondary"] {
+            border: 1px solid var(--border-color);
         }
         </style>
         """,

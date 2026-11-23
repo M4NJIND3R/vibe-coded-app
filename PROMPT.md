@@ -263,3 +263,37 @@ Refactor for readability: remove unused code and imports, add docstrings and typ
 - `PROMPT.md`
 
 **Problems or limitations:** The previous preview process was no longer running; it was restarted and verified on port `8509`. Source compilation passed, all 24 tests passed, and the health endpoint returned `200` with `ok`. No behavior changes were introduced.
+
+## Prompt 13
+
+**Prompt (verbatim):**
+
+```text
+Check the color theme of the app and make sure it meets the contrast requiremetns. Currently i see light grey on white in some locations.
+```
+
+**Summary:** Improved theme contrast by replacing pale foreground text with dark slate, strengthening primary/secondary buttons, increasing metric text contrast, and darkening Plotly labels and chart colors.
+
+**Files created or changed:**
+- `src/streakboard/app.py`
+- `src/streakboard/charts.py`
+- `PROMPT.md`
+
+**Problems or limitations:** Compilation and all 24 tests passed. One chart layout syntax issue caused by duplicate axis keys was found during validation and corrected. The app is running and healthy on port `8510` with a `200` health response.
+
+## Prompt 14
+
+**Prompt (verbatim):**
+
+```text
+check all the styles again to make sure color contrast is to the standard. refactor the styles to be delebrate of each section and text. Streamlit has its own default dark light theme and ite currently breaks in dark theme because of overiding colors. Make sure to only update colors where nessacery and make sure its also managed for dark and ligth themes of stream lit. dont change defautl colors where we donot need to.
+```
+
+**Summary:** Refactored styling to preserve Streamlit's native light/dark theme colors, using theme variables only for metric and sidebar boundaries. Removed broad text/background overrides, fixed chart templates to use Plotly theme defaults, and replaced the fixed heatmap palette with a standard Greens scale.
+
+**Files created or changed:**
+- `src/streakboard/app.py`
+- `src/streakboard/charts.py`
+- `PROMPT.md`
+
+**Problems or limitations:** Compilation passed, all 24 tests passed, and the theme-aware app returned `200` with `ok` on port `8511`. Native Streamlit primary, text, tab, and alert colors are now left to the active theme; only spacing/surface boundaries remain scoped.

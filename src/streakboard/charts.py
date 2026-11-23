@@ -42,7 +42,7 @@ def weekly_completion_chart(
         go.Bar(
             x=labels,
             y=counts,
-            marker_color="#5B8DEF",
+            marker_color="#1D4ED8",
             text=counts,
             textposition="outside",
         )
@@ -52,7 +52,7 @@ def weekly_completion_chart(
         xaxis_title="Week starting",
         yaxis_title="Completed check-ins",
         yaxis=dict(dtick=1),
-        template="plotly_white",
+        template="plotly",
         height=350,
         margin=dict(l=40, r=20, t=60, b=40),
     )
@@ -93,7 +93,7 @@ def calendar_heatmap(
             z=z_values,
             x=[week.strftime("%b %d") for week in week_starts],
             y=week_labels,
-            colorscale=[[0, "#EDF2F7"], [1, "#22C55E"]],
+            colorscale="Greens",
             showscale=False,
             zmin=0,
             zmax=1,
@@ -102,9 +102,9 @@ def calendar_heatmap(
     )
     figure.update_layout(
         title="Check-in activity - last 90 days",
-        template="plotly_white",
-        height=330,
+        template="plotly",
         xaxis=dict(side="top"),
+        height=330,
         margin=dict(l=100, r=20, t=80, b=30),
     )
     return figure
@@ -121,7 +121,7 @@ def completion_rate_chart(
         go.Bar(
             x=names,
             y=rates,
-            marker_color="#22C55E",
+            marker_color="#15803D",
             text=[f"{rate:.1f}%" for rate in rates],
             textposition="outside",
         )
@@ -131,7 +131,7 @@ def completion_rate_chart(
         xaxis_title="Habit",
         yaxis_title="Completion rate",
         yaxis=dict(range=[0, 100], ticksuffix="%"),
-        template="plotly_white",
+        template="plotly",
         height=350,
         margin=dict(l=50, r=20, t=60, b=80),
     )
@@ -149,7 +149,7 @@ def category_breakdown_chart(
         go.Bar(
             x=names,
             y=counts,
-            marker_color=["#2563EB", "#22C55E", "#F59E0B", "#8B5CF6"][: len(names)],
+            marker_color=["#1D4ED8", "#15803D", "#B45309", "#7E22CE"][: len(names)],
             text=counts,
             textposition="outside",
         )
@@ -159,7 +159,7 @@ def category_breakdown_chart(
         xaxis_title="Category",
         yaxis_title="Number of habits",
         yaxis=dict(dtick=1),
-        template="plotly_white",
+        template="plotly",
         height=350,
         margin=dict(l=50, r=20, t=60, b=80),
     )
