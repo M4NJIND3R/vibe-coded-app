@@ -186,15 +186,15 @@ Replace these placeholders with screenshots of the completed application:
 
 ### Dashboard
 
-![StreakBoard dashboard](screenshots/dashboard.png)
+<img src="screenshots/dashboard.png" width="900">
 
 ### Today View
 
-![StreakBoard today view](screenshots/today.png)
+<img src="screenshots/today.png" width="900">
 
 ### Manage View
 
-![StreakBoard manage view](screenshots/manage.png)
+<img src="screenshots/manage.png" width="900">
 
 ## Future Improvements
 
