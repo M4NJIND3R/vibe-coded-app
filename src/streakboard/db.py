@@ -138,7 +138,14 @@ def get_check_in_dates(habit_id: int) -> list[str]:
             """,
             (habit_id,),
         ).fetchall()
-        return [row["date"] for row in rows]
+        valid_dates = []
+        for row in rows:
+            try:
+                date.fromisoformat(row["date"])
+                valid_dates.append(row["date"])
+            except (TypeError, ValueError):
+                continue
+        return valid_dates
 
 
 def delete_habit(habit_id: int) -> None:

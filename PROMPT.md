@@ -222,3 +222,25 @@ Review the whole codebase for bugs and edge cases: duplicate check-ins on the sa
 - `PROMPT.md`
 
 **Problems or limitations:** None. Source compilation passed, all 23 tests passed, and the reviewed app returned `200` with `ok` on port `8507`.
+
+## Prompt 11
+
+**Prompt (verbatim):**
+
+```text
+Review the whole codebase for bugs and edge cases again to re-verify
+```
+
+**Summary:** Performed a second full codebase review and narrowed two issues found in the deletion and malformed-date paths.
+
+**Problems found and fixes:**
+1. **Malformed legacy check-in dates:** Added database-level filtering in `get_check_in_dates` so invalid or impossible ISO dates are excluded instead of reaching stats or charts.
+2. **Over-broad deletion cleanup:** Replaced substring-based session-state cleanup with an exact widget-key cleanup list for the deleted habit.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `tests/test_db_mutations.py`
+- `PROMPT.md`
+
+**Problems or limitations:** The earlier preview process was no longer running; it was restarted and verified on port `8508`. Source compilation passed, all 24 tests passed, and the health endpoint returned `200` with `ok`.

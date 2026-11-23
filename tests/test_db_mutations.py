@@ -150,3 +150,22 @@ def test_sample_loader_refuses_to_replace_without_confirmation(tmp_path, monkeyp
         raise AssertionError("Expected sample loading to refuse existing data")
 
     assert len(db.get_habits()) == 1
+
+
+def test_get_check_in_dates_ignores_malformed_legacy_values(tmp_path, monkeypatch):
+    database_path = tmp_path / "malformed-dates.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+    habit_id = db.add_habit("Legacy")
+
+    with db.get_connection() as connection:
+        connection.executemany(
+            "INSERT INTO check_ins (habit_id, date) VALUES (?, ?)",
+            [
+                (habit_id, "2026-11-22"),
+                (habit_id, "not-a-date"),
+                (habit_id, "2026-02-30"),
+            ],
+        )
+
+    assert db.get_check_in_dates(habit_id) == ["2026-11-22"]

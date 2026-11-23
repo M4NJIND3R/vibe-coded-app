@@ -354,9 +354,20 @@ def run() -> None:
                         ):
                             delete_habit(habit["id"])
                             st.session_state.pop(confirm_key, None)
-                            for key in list(st.session_state.keys()):
-                                if habit["name"] in str(key) or str(habit["id"]) in str(key):
-                                    st.session_state.pop(key, None)
+                            exact_widget_keys = (
+                                f"edit_name_{habit['id']}",
+                                f"edit_description_{habit['id']}",
+                                f"edit_category_{habit['id']}",
+                                f"delete_habit_{habit['id']}",
+                                f"confirm_yes_{habit['id']}",
+                                f"confirm_cancel_{habit['id']}",
+                                f"confirm_delete_{habit['id']}",
+                                f"undo_today_{habit['id']}",
+                                f"mark_done_{habit['id']}",
+                                f"edit_habit_{habit['id']}",
+                            )
+                            for key in exact_widget_keys:
+                                st.session_state.pop(key, None)
                             st.rerun()
                         if cancel_col.button(
                             "Cancel",
