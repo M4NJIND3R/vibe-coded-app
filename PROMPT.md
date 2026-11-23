@@ -297,3 +297,19 @@ check all the styles again to make sure color contrast is to the standard. refac
 - `PROMPT.md`
 
 **Problems or limitations:** Compilation passed, all 24 tests passed, and the theme-aware app returned `200` with `ok` on port `8511`. Native Streamlit primary, text, tab, and alert colors are now left to the active theme; only spacing/surface boundaries remain scoped.
+
+## Prompt 15
+
+**Prompt (verbatim):**
+
+```text
+Write the full README.md with these sections: Project Name, Description, Purpose, Features, Technologies, AI Tools Used, Installation, Running the Application, How AI Was Used (with 3 example prompts from PROMPT.md that most influenced the app), Screenshots (use placeholders like screenshots/dashboard.png), Future Improvements (at least 3), and Vibe Coding Reflection. For the reflection, create a template with the 6 questions and bracketed hints. I will write the answers myself from my real experience. Update PROMPT.md.
+```
+
+**Summary:** Replaced the short placeholder README with a complete project guide, selected three influential prompts, added screenshot placeholders and future improvements, and created a bracketed six-question vibe coding reflection template for the user to complete.
+
+**Files created or changed:**
+- `README.md`
+- `PROMPT.md`
+
+**Problems or limitations:** The reflection answers are intentionally left unfinished because they require the user's real experience. No application code or behavior was changed.
