@@ -1,8 +1,8 @@
 import os
+import random
 import sqlite3
 from datetime import date, timedelta
 from pathlib import Path
-import random
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -17,6 +17,7 @@ MAX_HABIT_DESCRIPTION_LENGTH = 1000
 
 
 def get_connection() -> sqlite3.Connection:
+    """Open a configured SQLite connection with foreign keys enabled."""
     database_path = Path(DATABASE_PATH)
     database_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(database_path)
@@ -26,6 +27,7 @@ def get_connection() -> sqlite3.Connection:
 
 
 def init_db() -> None:
+    """Create tables and safely add the category column to older databases."""
     with get_connection() as connection:
         connection.executescript(
             """
@@ -63,6 +65,7 @@ def add_habit(
     description: Optional[str] = None,
     category: str = "Personal",
 ) -> int:
+    """Validate and add a habit, returning its database ID."""
     cleaned_name = name.strip()
     if not cleaned_name:
         raise ValueError("Habit name cannot be empty.")
@@ -84,6 +87,7 @@ def add_habit(
 
 
 def get_habits() -> list[sqlite3.Row]:
+    """Return all habits ordered by newest first."""
     with get_connection() as connection:
         return connection.execute(
             """
@@ -95,6 +99,7 @@ def get_habits() -> list[sqlite3.Row]:
 
 
 def mark_habit_done(habit_id: int, check_in_date: Optional[date] = None) -> bool:
+    """Record one check-in for a habit on the selected date."""
     today = (check_in_date or date.today()).isoformat()
     with get_connection() as connection:
         habit = connection.execute(
@@ -114,6 +119,7 @@ def mark_habit_done(habit_id: int, check_in_date: Optional[date] = None) -> bool
 
 
 def is_habit_done_today(habit_id: int, check_in_date: Optional[date] = None) -> bool:
+    """Return whether a habit has a check-in on the selected date."""
     today = (check_in_date or date.today()).isoformat()
     with get_connection() as connection:
         row = connection.execute(
@@ -128,6 +134,7 @@ def is_habit_done_today(habit_id: int, check_in_date: Optional[date] = None) -> 
 
 
 def get_check_in_dates(habit_id: int) -> list[str]:
+    """Return valid ISO check-in dates belonging to a habit."""
     with get_connection() as connection:
         rows = connection.execute(
             """
@@ -149,6 +156,7 @@ def get_check_in_dates(habit_id: int) -> list[str]:
 
 
 def delete_habit(habit_id: int) -> None:
+    """Delete a habit and its check-ins through the foreign-key cascade."""
     with get_connection() as connection:
         connection.execute(
             "DELETE FROM habits WHERE id = ?",
@@ -162,6 +170,7 @@ def update_habit(
     description: Optional[str],
     category: str,
 ) -> None:
+    """Update a habit's name, description, and category."""
     cleaned_name = name.strip()
     if not cleaned_name:
         raise ValueError("Habit name cannot be empty.")
@@ -186,6 +195,7 @@ def update_habit(
 
 
 def undo_today_check_in(habit_id: int, check_in_date: Optional[date] = None) -> bool:
+    """Remove a habit's check-in for the selected date."""
     today = (check_in_date or date.today()).isoformat()
     with get_connection() as connection:
         cursor = connection.execute(
@@ -209,6 +219,7 @@ def load_sample_data(
     replace_existing: bool = False,
     seed: Optional[int] = None,
 ) -> int:
+    """Load deterministic randomized sample habits and 60-day check-ins."""
     reference_date = today or date.today()
     rng = random.Random(seed)
 
@@ -255,6 +266,7 @@ def load_sample_data(
 
 
 def get_all_check_ins() -> list[sqlite3.Row]:
+    """Return every check-in joined with its habit details for export."""
     with get_connection() as connection:
         return connection.execute(
             """

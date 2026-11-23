@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 
 
 def _parse_check_in_date(value: str) -> date | None:
+    """Parse an ISO check-in date, returning None for invalid input."""
     try:
         return date.fromisoformat(value)
     except (TypeError, ValueError):
@@ -15,6 +16,7 @@ def weekly_completion_chart(
     check_in_dates: Iterable[str],
     today: date | None = None,
 ) -> go.Figure:
+    """Build a bar chart of check-ins across the last eight weeks."""
     reference_date = today or date.today()
     completed = [
         parsed
@@ -61,6 +63,7 @@ def calendar_heatmap(
     check_in_dates: Iterable[str],
     today: date | None = None,
 ) -> go.Figure:
+    """Build a 90-day calendar-style check-in heatmap."""
     reference_date = today or date.today()
     completed = {
         parsed
@@ -110,6 +113,7 @@ def calendar_heatmap(
 def completion_rate_chart(
     completion_rates: Mapping[str, float],
 ) -> go.Figure:
+    """Build a bar chart for habit completion percentages."""
     names = list(completion_rates)
     rates = [completion_rates[name] for name in names]
 
@@ -137,6 +141,7 @@ def completion_rate_chart(
 def category_breakdown_chart(
     category_counts: Mapping[str, int],
 ) -> go.Figure:
+    """Build a bar chart of habit counts by category."""
     names = list(category_counts)
     counts = [category_counts[name] for name in names]
 

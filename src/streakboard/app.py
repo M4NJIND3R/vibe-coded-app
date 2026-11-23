@@ -1,6 +1,6 @@
-from datetime import date, timedelta
-
 import csv
+import sqlite3
+from datetime import date, timedelta
 from io import StringIO
 
 import streamlit as st
@@ -28,13 +28,9 @@ from .db import (
 from .stats import calculate_current_streak, calculate_longest_streak
 
 
-def run() -> None:
-    st.set_page_config(
-        page_title="StreakBoard",
-        page_icon=":chart_with_upwards_trend:",
-        layout="wide",
-    )
-
+def configure_page() -> None:
+    """Configure the Streamlit page and shared application styling."""
+    st.set_page_config(page_title="StreakBoard", page_icon=":chart_with_upwards_trend:", layout="wide")
     st.markdown(
         """
         <style>
@@ -58,37 +54,17 @@ def run() -> None:
         unsafe_allow_html=True,
     )
 
-    init_db()
 
-    habits = get_habits()
-    app_today = date.today()
-
-    streaks = [
-        calculate_longest_streak(get_check_in_dates(habit["id"]))
-        for habit in habits
-    ]
-    today_completions = sum(
-        is_habit_done_today(habit["id"], app_today)
-        for habit in habits
-    )
-    best_streak = max(streaks, default=0)
-
+def render_sidebar() -> None:
+    """Render the sidebar title and add-habit form."""
     with st.sidebar:
         st.title("StreakBoard")
         st.caption("Build consistency, one day at a time.")
         st.divider()
         st.subheader("Add a habit")
         with st.form("add-habit", clear_on_submit=True):
-            name = st.text_input(
-                "Habit name",
-                placeholder="e.g. Morning walk",
-                max_chars=100,
-            )
-            description = st.text_area(
-                "Description",
-                placeholder="Optional",
-                max_chars=1000,
-            )
+            name = st.text_input("Habit name", placeholder="e.g. Morning walk", max_chars=100)
+            description = st.text_area("Description", placeholder="Optional", max_chars=1000)
             category = st.selectbox("Category", CATEGORIES)
             submitted = st.form_submit_button("Add habit", type="primary")
 
@@ -103,11 +79,33 @@ def run() -> None:
         st.divider()
         st.caption("Small steps become strong streaks.")
 
+
+def render_summary(habits: list[sqlite3.Row], app_today: date) -> None:
+    """Render total-habit and streak summary metrics."""
+    streaks = [
+        calculate_longest_streak(get_check_in_dates(habit["id"]))
+        for habit in habits
+    ]
+    today_completions = sum(
+        is_habit_done_today(habit["id"], app_today)
+        for habit in habits
+    )
     st.title("Your progress")
     metric_columns = st.columns(3)
     metric_columns[0].metric("Total habits", len(habits))
     metric_columns[1].metric("Today's completions", today_completions)
-    metric_columns[2].metric("Best streak", f"{best_streak} day(s)")
+    metric_columns[2].metric("Best streak", f"{max(streaks, default=0)} day(s)")
+
+
+def run() -> None:
+    """Initialize database state and render the StreakBoard interface."""
+    configure_page()
+    init_db()
+    habits = get_habits()
+    app_today = date.today()
+
+    render_sidebar()
+    render_summary(habits, app_today)
 
     today_tab, dashboard_tab, manage_tab = st.tabs(
         ["Today", "Dashboard", "Manage"]

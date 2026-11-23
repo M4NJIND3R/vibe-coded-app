@@ -6,6 +6,7 @@ CheckInDate = Union[date, str]
 
 
 def _normalize_dates(check_in_dates: Iterable[CheckInDate]) -> set[date]:
+    """Convert supported date values into a set of valid calendar dates."""
     normalized = set()
     for check_in_date in check_in_dates:
         try:
@@ -23,6 +24,7 @@ def calculate_current_streak(
     check_in_dates: Iterable[CheckInDate],
     today: Optional[date] = None,
 ) -> int:
+    """Return the active streak ending today or yesterday."""
     completed_dates = _normalize_dates(check_in_dates)
     if not completed_dates:
         return 0
@@ -43,6 +45,7 @@ def calculate_current_streak(
 
 
 def calculate_longest_streak(check_in_dates: Iterable[CheckInDate]) -> int:
+    """Return the longest run of consecutive calendar dates."""
     completed_dates = sorted(_normalize_dates(check_in_dates))
     if not completed_dates:
         return 0

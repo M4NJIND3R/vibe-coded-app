@@ -244,3 +244,22 @@ Review the whole codebase for bugs and edge cases again to re-verify
 - `PROMPT.md`
 
 **Problems or limitations:** The earlier preview process was no longer running; it was restarted and verified on port `8508`. Source compilation passed, all 24 tests passed, and the health endpoint returned `200` with `ok`.
+
+## Prompt 12
+
+**Prompt (verbatim):**
+
+```text
+Refactor for readability: remove unused code and imports, add docstrings and type hints to functions, use clear names, and make sure db.py, stats.py, charts.py, and app.py each have a single responsibility. Don't change behavior, and run the tests afterward. Update PROMPT.md.
+```
+
+**Summary:** Refactored for readability without changing behavior: reordered imports, added docstrings and return/parameter hints, clarified function responsibilities, and extracted sidebar and summary render helpers in the Streamlit module.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/stats.py`
+- `src/streakboard/charts.py`
+- `src/streakboard/app.py`
+- `PROMPT.md`
+
+**Problems or limitations:** The previous preview process was no longer running; it was restarted and verified on port `8509`. Source compilation passed, all 24 tests passed, and the health endpoint returned `200` with `ok`. No behavior changes were introduced.
