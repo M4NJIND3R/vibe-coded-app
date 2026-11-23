@@ -61,13 +61,14 @@ def run() -> None:
     init_db()
 
     habits = get_habits()
+    app_today = date.today()
 
     streaks = [
         calculate_longest_streak(get_check_in_dates(habit["id"]))
         for habit in habits
     ]
     today_completions = sum(
-        is_habit_done_today(habit["id"])
+        is_habit_done_today(habit["id"], app_today)
         for habit in habits
     )
     best_streak = max(streaks, default=0)
@@ -78,8 +79,16 @@ def run() -> None:
         st.divider()
         st.subheader("Add a habit")
         with st.form("add-habit", clear_on_submit=True):
-            name = st.text_input("Habit name", placeholder="e.g. Morning walk")
-            description = st.text_area("Description", placeholder="Optional")
+            name = st.text_input(
+                "Habit name",
+                placeholder="e.g. Morning walk",
+                max_chars=100,
+            )
+            description = st.text_area(
+                "Description",
+                placeholder="Optional",
+                max_chars=1000,
+            )
             category = st.selectbox("Category", CATEGORIES)
             submitted = st.form_submit_button("Add habit", type="primary")
 
@@ -138,14 +147,14 @@ def run() -> None:
                         f"· Personal best: {longest_streak} days"
                     )
 
-                    done_today = is_habit_done_today(habit["id"])
+                    done_today = is_habit_done_today(habit["id"], app_today)
                     if done_today:
                         col_right.success("Done today")
                         if col_right.button(
                             "Undo today",
                             key=f"undo_today_{habit['id']}",
                         ):
-                            undo_today_check_in(habit["id"])
+                            undo_today_check_in(habit["id"], app_today)
                             st.rerun()
                     else:
                         if col_right.button(
@@ -153,7 +162,7 @@ def run() -> None:
                             key=f"mark_done_{habit['id']}",
                             type="primary",
                         ):
-                            mark_habit_done(habit["id"])
+                            mark_habit_done(habit["id"], app_today)
                             st.rerun()
 
     with dashboard_tab:
@@ -171,14 +180,22 @@ def run() -> None:
                 if dashboard_category == "All categories"
                 or habit["category"] == dashboard_category
             ]
-            habit_options = ["All habits"] + [habit["name"] for habit in category_habits]
-            selected_name = st.selectbox("Habit", habit_options)
+            habit_options = {"All habits": None}
+            habit_options.update(
+                {
+                    f"{habit['name']} ({habit['id']})": habit["id"]
+                    for habit in category_habits
+                }
+            )
+            selected_label = st.selectbox("Habit", list(habit_options))
+            selected_habit_id = habit_options[selected_label]
 
-            if selected_name == "All habits":
+            if selected_habit_id is None:
                 selected_habits = list(category_habits)
             else:
                 selected_habits = [
-                    habit for habit in habits if habit["name"] == selected_name
+                    habit for habit in category_habits
+                    if habit["id"] == selected_habit_id
                 ]
 
             selected_dates = []
@@ -189,18 +206,18 @@ def run() -> None:
                 recent_dates = {
                     date.fromisoformat(check_in_date)
                     for check_in_date in habit_dates
-                    if date.today() - timedelta(days=89)
+                    if app_today - timedelta(days=89)
                     <= date.fromisoformat(check_in_date)
-                    <= date.today()
+                    <= app_today
                 }
                 completion_rates[habit["name"]] = len(recent_dates) / 90 * 100
 
             st.plotly_chart(
-                weekly_completion_chart(selected_dates),
+                weekly_completion_chart(selected_dates, app_today),
                 use_container_width=True,
             )
             st.plotly_chart(
-                calendar_heatmap(selected_dates),
+                calendar_heatmap(selected_dates, app_today),
                 use_container_width=True,
             )
             st.plotly_chart(
@@ -290,17 +307,21 @@ def run() -> None:
                             "Habit name",
                             value=habit["name"],
                             key=f"edit_name_{habit['id']}",
+                            max_chars=100,
                         )
                         edited_description = st.text_area(
                             "Description",
                             value=habit["description"] or "",
                             key=f"edit_description_{habit['id']}",
+                            max_chars=1000,
                         )
                         current_category_index = CATEGORIES.index(
                             habit["category"]
                             if habit["category"] in CATEGORIES
                             else "Personal"
                         )
+                        if len(habit["name"]) > 100:
+                            st.caption("Stored habit name exceeds the display limit.")
                         edited_category = st.selectbox(
                             "Category",
                             CATEGORIES,
@@ -333,6 +354,9 @@ def run() -> None:
                         ):
                             delete_habit(habit["id"])
                             st.session_state.pop(confirm_key, None)
+                            for key in list(st.session_state.keys()):
+                                if habit["name"] in str(key) or str(habit["id"]) in str(key):
+                                    st.session_state.pop(key, None)
                             st.rerun()
                         if cancel_col.button(
                             "Cancel",

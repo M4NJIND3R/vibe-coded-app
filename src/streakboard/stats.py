@@ -8,10 +8,14 @@ CheckInDate = Union[date, str]
 def _normalize_dates(check_in_dates: Iterable[CheckInDate]) -> set[date]:
     normalized = set()
     for check_in_date in check_in_dates:
-        if isinstance(check_in_date, date):
-            normalized.add(check_in_date)
-        else:
-            normalized.add(date.fromisoformat(check_in_date))
+        try:
+            normalized.add(
+                check_in_date
+                if isinstance(check_in_date, date)
+                else date.fromisoformat(check_in_date)
+            )
+        except (TypeError, ValueError):
+            continue
     return normalized
 
 

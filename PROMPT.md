@@ -189,3 +189,36 @@ Add a "Load sample data" button that generates 5 sample habits with 60 days of r
 - `PROMPT.md`
 
 **Problems or limitations:** None. Source compilation passed, all 19 tests passed, and the app health endpoint returned `200` with `ok`.
+
+## Prompt 10
+
+**Prompt (verbatim):**
+
+```text
+Review the whole codebase for bugs and edge cases: duplicate check-ins on the same day, app state after deleting a habit, empty database, very long habit names, date handling around midnight, and Streamlit rerun issues. List the problems you find first, then fix them one by one. Update PROMPT.md with each bug and fix.
+```
+
+**Summary:** Reviewed database, UI, chart, stats, and tests; identified and fixed duplicate check-ins, stale deletion state, empty-data handling, overly long text, midnight date drift, malformed dates, duplicate-habit-name selectors, missing-habit marks, and unsafe sample replacement.
+
+**Problems found and fixes:**
+1. **Duplicate check-ins:** Composite primary key already prevented duplicates. Added a database existence check and duplicate-safe tests for `INSERT OR IGNORE`.
+2. **Delete app state:** Deletion cascaded check-ins, but selector/widget keys could remain stale after rerun. Added cleanup for stale session keys after confirmed deletion.
+3. **Empty database:** Tabs handled no habits, but dashboard selector and export assumptions could remain misleading. Preserved friendly empty states and disabled CSV export for no check-ins.
+4. **Very long habit names/descriptions:** Added 100-character name and 1000-character description limits in database and Streamlit inputs.
+5. **Midnight date handling:** Captured one `app_today = date.today()` value per run and reused it for metrics, mark, undo, charts, and dashboard windows.
+6. **Malformed dates:** Stats and chart functions now ignore invalid date strings rather than crashing.
+7. **Rerun issues:** Centralized mutation reruns and stale-key cleanup; dashboard habit selection now uses stable habit IDs and category-filtered labels.
+8. **Missing habit mark:** `mark_habit_done` now verifies that a habit exists before inserting a check-in.
+9. **Unsafe sample replacement:** `load_sample_data` refuses to replace existing records unless `replace_existing=True`; the UI confirms first.
+10. **CSV/stale state:** Export uses current database rows and remains disabled until at least one check-in exists.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `src/streakboard/stats.py`
+- `src/streakboard/charts.py`
+- `tests/test_stats.py`
+- `tests/test_db_mutations.py`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Source compilation passed, all 23 tests passed, and the reviewed app returned `200` with `ok` on port `8507`.

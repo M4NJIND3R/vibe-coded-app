@@ -12,6 +12,8 @@ load_dotenv()
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "data/streakboard.db")
 CATEGORIES = ("Health", "Study", "Work", "Personal")
+MAX_HABIT_NAME_LENGTH = 100
+MAX_HABIT_DESCRIPTION_LENGTH = 1000
 
 
 def get_connection() -> sqlite3.Connection:
@@ -64,8 +66,14 @@ def add_habit(
     cleaned_name = name.strip()
     if not cleaned_name:
         raise ValueError("Habit name cannot be empty.")
+    if len(cleaned_name) > MAX_HABIT_NAME_LENGTH:
+        raise ValueError(f"Habit name must be {MAX_HABIT_NAME_LENGTH} characters or fewer.")
 
     cleaned_description = description.strip() if description else None
+    if cleaned_description and len(cleaned_description) > MAX_HABIT_DESCRIPTION_LENGTH:
+        raise ValueError(
+            f"Description must be {MAX_HABIT_DESCRIPTION_LENGTH} characters or fewer."
+        )
     cleaned_category = category if category in CATEGORIES else "Personal"
     with get_connection() as connection:
         cursor = connection.execute(
@@ -89,6 +97,12 @@ def get_habits() -> list[sqlite3.Row]:
 def mark_habit_done(habit_id: int, check_in_date: Optional[date] = None) -> bool:
     today = (check_in_date or date.today()).isoformat()
     with get_connection() as connection:
+        habit = connection.execute(
+            "SELECT 1 FROM habits WHERE id = ?",
+            (habit_id,),
+        ).fetchone()
+        if habit is None:
+            return False
         cursor = connection.execute(
             """
             INSERT OR IGNORE INTO check_ins (habit_id, date)
@@ -144,9 +158,15 @@ def update_habit(
     cleaned_name = name.strip()
     if not cleaned_name:
         raise ValueError("Habit name cannot be empty.")
+    if len(cleaned_name) > MAX_HABIT_NAME_LENGTH:
+        raise ValueError(f"Habit name must be {MAX_HABIT_NAME_LENGTH} characters or fewer.")
 
     cleaned_category = category if category in CATEGORIES else "Personal"
     cleaned_description = description.strip() if description else None
+    if cleaned_description and len(cleaned_description) > MAX_HABIT_DESCRIPTION_LENGTH:
+        raise ValueError(
+            f"Description must be {MAX_HABIT_DESCRIPTION_LENGTH} characters or fewer."
+        )
     with get_connection() as connection:
         connection.execute(
             """
@@ -186,6 +206,13 @@ def load_sample_data(
     rng = random.Random(seed)
 
     with get_connection() as connection:
+        existing_count = connection.execute(
+            "SELECT COUNT(*) AS count FROM habits"
+        ).fetchone()["count"]
+        if existing_count and not replace_existing:
+            raise ValueError(
+                "Existing habits found. Set replace_existing=True only after user confirmation."
+            )
         if replace_existing:
             connection.execute("DELETE FROM check_ins")
             connection.execute("DELETE FROM habits")

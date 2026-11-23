@@ -4,14 +4,22 @@ from typing import Iterable, Mapping
 import plotly.graph_objects as go
 
 
+def _parse_check_in_date(value: str) -> date | None:
+    try:
+        return date.fromisoformat(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def weekly_completion_chart(
     check_in_dates: Iterable[str],
     today: date | None = None,
 ) -> go.Figure:
     reference_date = today or date.today()
     completed = [
-        date.fromisoformat(value)
+        parsed
         for value in check_in_dates
+        if (parsed := _parse_check_in_date(value)) is not None
     ]
 
     current_week_start = reference_date - timedelta(days=reference_date.weekday())
@@ -55,8 +63,9 @@ def calendar_heatmap(
 ) -> go.Figure:
     reference_date = today or date.today()
     completed = {
-        date.fromisoformat(value)
+        parsed
         for value in check_in_dates
+        if (parsed := _parse_check_in_date(value)) is not None
     }
     start_date = reference_date - timedelta(days=89)
 

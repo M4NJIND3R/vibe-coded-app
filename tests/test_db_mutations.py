@@ -99,3 +99,54 @@ def test_load_sample_data_can_replace_existing_data(tmp_path, monkeypatch):
     assert len(habits) == 5
     assert all(habit["name"] != "Existing" for habit in habits)
     assert db.get_check_in_dates(existing_id) == []
+
+
+def test_mark_done_is_duplicate_safe_and_missing_habit_safe(tmp_path, monkeypatch):
+    database_path = tmp_path / "duplicates.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+    habit_id = db.add_habit("Daily habit")
+    today = date(2026, 11, 23)
+
+    assert db.mark_habit_done(habit_id, today)
+    assert not db.mark_habit_done(habit_id, today)
+    assert not db.mark_habit_done(999999, today)
+    assert len(db.get_check_in_dates(habit_id)) == 1
+
+
+def test_habit_name_and_description_limits(tmp_path, monkeypatch):
+    database_path = tmp_path / "limits.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+
+    try:
+        db.add_habit("A" * 101)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Expected an overlong habit name to raise ValueError")
+
+    try:
+        db.add_habit("Valid", "D" * 1001)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Expected an overlong description to raise ValueError")
+
+    assert db.get_habits() == []
+
+
+def test_sample_loader_refuses_to_replace_without_confirmation(tmp_path, monkeypatch):
+    database_path = tmp_path / "sample-refusal.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+    db.add_habit("Keep me")
+
+    try:
+        db.load_sample_data(replace_existing=False, seed=1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Expected sample loading to refuse existing data")
+
+    assert len(db.get_habits()) == 1

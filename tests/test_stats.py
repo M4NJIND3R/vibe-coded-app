@@ -83,3 +83,11 @@ def test_today_unchecked_but_yesterday_checked():
     check_in_dates = ["2026-11-21", "2026-11-22"]
 
     assert calculate_current_streak(check_in_dates, TODAY) == 2
+
+
+def test_malformed_dates_are_ignored():
+    assert calculate_current_streak(
+        ["not-a-date", "2026-11-22", "2026-11-23"],
+        TODAY,
+    ) == 2
+    assert calculate_longest_streak(["bad", "2026-11-21", "2026-11-22"]) == 2
