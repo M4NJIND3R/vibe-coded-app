@@ -61,7 +61,17 @@ StreakBoard requires Python 3.10 or newer.
 ### 1. Clone or download the project
 
 ```powershell
-cd "path\to\StreakBoard"
+git clone "<repository-url>"
+cd "StreakBoard"
+```
+
+If you downloaded a ZIP instead, extract it and open a PowerShell terminal
+in the folder that contains `app.py`, `requirements.txt`, and `src/`.
+
+Confirm the virtual environment and application files are in the project root:
+
+```powershell
+Get-Item app.py, requirements.txt, src\streakboard
 ```
 
 ### 2. Create a virtual environment

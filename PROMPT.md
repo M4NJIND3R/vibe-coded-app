@@ -313,3 +313,34 @@ Write the full README.md with these sections: Project Name, Description, Purpose
 - `PROMPT.md`
 
 **Problems or limitations:** The reflection answers are intentionally left unfinished because they require the user's real experience. No application code or behavior was changed.
+
+## Prompt 16
+
+**Prompt (verbatim):**
+
+```text
+Act as a new developer. Review the repo and check that README setup steps match the actual files, requirements.txt covers every import, no secrets or .db files are tracked, and there are no missing files or broken links. Give me a checklist of anything to fix, then fix it. Update PROMPT.md.
+```
+
+**Summary:** Audited repository setup, imports, tracked files, secrets, database files, Markdown links, and screenshot placeholders. Added repository hygiene placeholders and clarified README setup/verification steps.
+
+**Checklist reviewed and fixed:**
+- [Fixed] Added missing screenshot placeholder files for all README image links.
+- [Fixed] Added a tracked `data/.gitkeep` placeholder while keeping database files ignored.
+- [Fixed] Clarified clone and project-root setup steps in the README.
+- [Passed] `.env`, virtual environments, Python caches, and database files are ignored.
+- [Passed] No `.db` or secret-bearing file is tracked.
+- [Passed] Every third-party Python import is covered by `requirements.txt`.
+- [Passed] Core README links and application entry files exist.
+
+**Files created or changed:**
+- `.gitignore`
+- `README.md`
+- `data/.gitkeep`
+- `screenshots/.gitkeep`
+- `screenshots/dashboard.png`
+- `screenshots/today.png`
+- `screenshots/manage.png`
+- `PROMPT.md`
+
+**Problems or limitations:** None after the repository audit fixes. Setup paths match the repository, README links resolve, no secret or database file is tracked, and all 24 tests pass. The screenshot PNG files are placeholders until real application screenshots are captured.
