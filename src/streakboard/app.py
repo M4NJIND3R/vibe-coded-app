@@ -9,6 +9,7 @@ from .charts import (
 )
 from .db import (
     add_habit,
+    delete_habit,
     get_habits,
     get_check_in_dates,
     init_db,
@@ -19,36 +20,83 @@ from .stats import calculate_current_streak, calculate_longest_streak
 
 
 def run() -> None:
-    st.set_page_config(page_title="StreakBoard", page_icon=":chart_with_upwards_trend:")
+    st.set_page_config(
+        page_title="StreakBoard",
+        page_icon=":chart_with_upwards_trend:",
+        layout="wide",
+    )
+
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebar"] {
+            background-color: #F8FAFC;
+            border-right: 1px solid #E2E8F0;
+        }
+        [data-testid="stMetric"] {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+        .stButton > button[kind="primary"] {
+            background-color: #2563EB;
+            border-color: #2563EB;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     init_db()
 
-    st.title("StreakBoard")
-    st.caption("Add habits and check in once a day.")
-
     habits = get_habits()
 
-    habits_tab, dashboard_tab = st.tabs(["My Habits", "Dashboard"])
+    streaks = [
+        calculate_longest_streak(get_check_in_dates(habit["id"]))
+        for habit in habits
+    ]
+    today_completions = sum(
+        is_habit_done_today(habit["id"])
+        for habit in habits
+    )
+    best_streak = max(streaks, default=0)
 
-    with habits_tab:
+    with st.sidebar:
+        st.title("StreakBoard")
+        st.caption("Build consistency, one day at a time.")
+        st.divider()
+        st.subheader("Add a habit")
         with st.form("add-habit", clear_on_submit=True):
-            name = st.text_input("Habit name")
-            description = st.text_area("Description (optional)")
+            name = st.text_input("Habit name", placeholder="e.g. Morning walk")
+            description = st.text_area("Description", placeholder="Optional")
             submitted = st.form_submit_button("Add habit", type="primary")
 
             if submitted:
                 try:
                     add_habit(name, description)
-                    st.success(f"Added habit: {name.strip()}")
+                    st.success(f"Added “{name.strip()}”")
                     st.rerun()
                 except ValueError as error:
                     st.error(str(error))
 
         st.divider()
-        st.subheader("My habits")
+        st.caption("Small steps become strong streaks.")
 
+    st.title("Your progress")
+    metric_columns = st.columns(3)
+    metric_columns[0].metric("Total habits", len(habits))
+    metric_columns[1].metric("Today's completions", today_completions)
+    metric_columns[2].metric("Best streak", f"{best_streak} day(s)")
+
+    today_tab, dashboard_tab, manage_tab = st.tabs(
+        ["Today", "Dashboard", "Manage"]
+    )
+
+    with today_tab:
         if not habits:
-            st.info("No habits yet. Add one above to get started.")
+            st.info("You have a fresh start—add your first habit in the sidebar.")
         else:
             for habit in habits:
                 with st.container(border=True):
@@ -59,16 +107,17 @@ def run() -> None:
                     check_in_dates = get_check_in_dates(habit["id"])
                     current_streak = calculate_current_streak(check_in_dates)
                     longest_streak = calculate_longest_streak(check_in_dates)
-                    st.markdown(
-                        f"**Current streak:** {current_streak} day(s)  |  "
-                        f"**Longest streak:** {longest_streak} day(s)"
+                    col_left, col_right = st.columns([3, 1])
+                    col_left.markdown(
+                        f"🔥 **{current_streak} day current streak**  "
+                        f"· Personal best: {longest_streak} days"
                     )
 
                     done_today = is_habit_done_today(habit["id"])
                     if done_today:
-                        st.success("Done today")
+                        col_right.success("Done today")
                     else:
-                        if st.button(
+                        if col_right.button(
                             "Mark done",
                             key=f"mark_done_{habit['id']}",
                             type="primary",
@@ -78,7 +127,7 @@ def run() -> None:
 
     with dashboard_tab:
         if not habits:
-            st.info("Add a habit to view dashboard charts.")
+            st.info("No chart data yet. Complete a habit to begin your dashboard.")
         else:
             habit_options = ["All habits"] + [habit["name"] for habit in habits]
             selected_name = st.selectbox("Habit", habit_options)
@@ -116,3 +165,22 @@ def run() -> None:
                 completion_rate_chart(completion_rates),
                 use_container_width=True,
             )
+
+    with manage_tab:
+        st.subheader("Manage habits")
+        if not habits:
+            st.info("Nothing to manage yet. Add a habit from the sidebar.")
+        else:
+            for habit in habits:
+                with st.container(border=True):
+                    left, right = st.columns([4, 1])
+                    left.markdown(f"**{habit['name']}**")
+                    if habit["description"]:
+                        left.write(habit["description"])
+                    if right.button(
+                        "Delete",
+                        key=f"delete_habit_{habit['id']}",
+                        type="secondary",
+                    ):
+                        delete_habit(habit["id"])
+                        st.rerun()

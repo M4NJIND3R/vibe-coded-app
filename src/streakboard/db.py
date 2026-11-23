@@ -105,3 +105,11 @@ def get_check_in_dates(habit_id: int) -> list[str]:
             (habit_id,),
         ).fetchall()
         return [row["date"] for row in rows]
+
+
+def delete_habit(habit_id: int) -> None:
+    with get_connection() as connection:
+        connection.execute(
+            "DELETE FROM habits WHERE id = ?",
+            (habit_id,),
+        )

@@ -117,3 +117,20 @@ Create charts.py with Plotly chart functions and add a "Dashboard" tab in app.py
 - `PROMPT.md`
 
 **Problems or limitations:** None. Chart smoke checks passed, all 11 pytest tests passed, source compilation passed, and the Streamlit health endpoint returned `200` with `ok`.
+
+## Prompt 6
+
+**Prompt (verbatim):**
+
+```text
+Improve the interface: use a clean sidebar for adding habits, tabs for "Today", "Dashboard", and "Manage", st.metric cards for summary stats (total habits, today's completions, best streak), consistent colors, and friendly empty-state messages when there is no data. Update PROMPT.md.
+```
+
+**Summary:** Redesigned the interface with a sidebar add-habit form, Today/Dashboard/Manage tabs, summary metric cards, consistent blue-green styling, friendly empty states, and habit deletion in Manage.
+
+**Files created or changed:**
+- `src/streakboard/app.py`
+- `src/streakboard/db.py`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Source compilation passed, all 11 pytest tests passed, and the improved app returned `200` with `ok` from the Streamlit health endpoint.
