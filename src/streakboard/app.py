@@ -4,11 +4,13 @@ import streamlit as st
 
 from .charts import (
     calendar_heatmap,
+    category_breakdown_chart,
     completion_rate_chart,
     weekly_completion_chart,
 )
 from .db import (
     add_habit,
+    CATEGORIES,
     delete_habit,
     get_habits,
     get_check_in_dates,
@@ -71,11 +73,12 @@ def run() -> None:
         with st.form("add-habit", clear_on_submit=True):
             name = st.text_input("Habit name", placeholder="e.g. Morning walk")
             description = st.text_area("Description", placeholder="Optional")
+            category = st.selectbox("Category", CATEGORIES)
             submitted = st.form_submit_button("Add habit", type="primary")
 
             if submitted:
                 try:
-                    add_habit(name, description)
+                    add_habit(name, description, category)
                     st.success(f"Added “{name.strip()}”")
                     st.rerun()
                 except ValueError as error:
@@ -98,9 +101,24 @@ def run() -> None:
         if not habits:
             st.info("You have a fresh start—add your first habit in the sidebar.")
         else:
-            for habit in habits:
+            today_category = st.selectbox(
+                "Filter by category",
+                ["All categories", *CATEGORIES],
+                key="today_category",
+            )
+            today_habits = [
+                habit
+                for habit in habits
+                if today_category == "All categories"
+                or habit["category"] == today_category
+            ]
+            if not today_habits:
+                st.info("No habits match this category. Try another category.")
+
+            for habit in today_habits:
                 with st.container(border=True):
                     st.markdown(f"**{habit['name']}**")
+                    st.caption(habit["category"])
                     if habit["description"]:
                         st.write(habit["description"])
 
@@ -129,11 +147,22 @@ def run() -> None:
         if not habits:
             st.info("No chart data yet. Complete a habit to begin your dashboard.")
         else:
-            habit_options = ["All habits"] + [habit["name"] for habit in habits]
+            dashboard_category = st.selectbox(
+                "Filter by category",
+                ["All categories", *CATEGORIES],
+                key="dashboard_category",
+            )
+            category_habits = [
+                habit
+                for habit in habits
+                if dashboard_category == "All categories"
+                or habit["category"] == dashboard_category
+            ]
+            habit_options = ["All habits"] + [habit["name"] for habit in category_habits]
             selected_name = st.selectbox("Habit", habit_options)
 
             if selected_name == "All habits":
-                selected_habits = list(habits)
+                selected_habits = list(category_habits)
             else:
                 selected_habits = [
                     habit for habit in habits if habit["name"] == selected_name
@@ -163,6 +192,17 @@ def run() -> None:
             )
             st.plotly_chart(
                 completion_rate_chart(completion_rates),
+                use_container_width=True,
+            )
+            category_counts = {
+                category: sum(
+                    habit["category"] == category
+                    for habit in habits
+                )
+                for category in CATEGORIES
+            }
+            st.plotly_chart(
+                category_breakdown_chart(category_counts),
                 use_container_width=True,
             )
 

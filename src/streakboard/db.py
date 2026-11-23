@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "data/streakboard.db")
+CATEGORIES = ("Health", "Study", "Work", "Personal")
 
 
 def get_connection() -> sqlite3.Connection:
@@ -28,7 +29,8 @@ def init_db() -> None:
             CREATE TABLE IF NOT EXISTS habits (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
-                description TEXT
+                description TEXT,
+                category TEXT NOT NULL DEFAULT 'Personal'
             );
 
             CREATE TABLE IF NOT EXISTS check_ins (
@@ -40,17 +42,34 @@ def init_db() -> None:
             """
         )
 
+        habit_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(habits)").fetchall()
+        }
+        if "category" not in habit_columns:
+            connection.execute(
+                "ALTER TABLE habits ADD COLUMN category TEXT NOT NULL DEFAULT 'Personal'"
+            )
+            connection.execute(
+                "UPDATE habits SET category = 'Personal' WHERE category IS NULL OR TRIM(category) = ''"
+            )
 
-def add_habit(name: str, description: Optional[str] = None) -> int:
+
+def add_habit(
+    name: str,
+    description: Optional[str] = None,
+    category: str = "Personal",
+) -> int:
     cleaned_name = name.strip()
     if not cleaned_name:
         raise ValueError("Habit name cannot be empty.")
 
     cleaned_description = description.strip() if description else None
+    cleaned_category = category if category in CATEGORIES else "Personal"
     with get_connection() as connection:
         cursor = connection.execute(
-            "INSERT INTO habits (name, description) VALUES (?, ?)",
-            (cleaned_name, cleaned_description),
+            "INSERT INTO habits (name, description, category) VALUES (?, ?, ?)",
+            (cleaned_name, cleaned_description, cleaned_category),
         )
         return int(cursor.lastrowid)
 
@@ -59,7 +78,7 @@ def get_habits() -> list[sqlite3.Row]:
     with get_connection() as connection:
         return connection.execute(
             """
-            SELECT id, name, description
+            SELECT id, name, description, category
             FROM habits
             ORDER BY id DESC
             """

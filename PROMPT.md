@@ -134,3 +134,22 @@ Improve the interface: use a clean sidebar for adding habits, tabs for "Today", 
 - `PROMPT.md`
 
 **Problems or limitations:** None. Source compilation passed, all 11 pytest tests passed, and the improved app returned `200` with `ok` from the Streamlit health endpoint.
+
+## Prompt 7
+
+**Prompt (verbatim):**
+
+```text
+Add habit categories (e.g., Health, Study, Work, Personal) stored in the database. Let users assign a category when creating a habit, filter the Today view and Dashboard by category, and add a category breakdown chart. Handle the database migration safely so existing data isn't lost. Update PROMPT.md.
+```
+
+**Summary:** Added Health, Study, Work, and Personal categories to habit creation and storage, category filters for Today and Dashboard, a category breakdown chart, and an SQLite migration that adds the category column without recreating or deleting existing data.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `src/streakboard/charts.py`
+- `tests/test_db_categories.py`
+- `PROMPT.md`
+
+**Problems or limitations:** None. An initial ad hoc migration shell check had quoting problems, so migration behavior was added as a focused pytest test. The category migration and streak test suite passed with 13 tests, and the app health endpoint returned `200` with `ok`.

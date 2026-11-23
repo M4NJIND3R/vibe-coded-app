@@ -123,3 +123,30 @@ def completion_rate_chart(
         margin=dict(l=50, r=20, t=60, b=80),
     )
     return figure
+
+
+def category_breakdown_chart(
+    category_counts: Mapping[str, int],
+) -> go.Figure:
+    names = list(category_counts)
+    counts = [category_counts[name] for name in names]
+
+    figure = go.Figure(
+        go.Bar(
+            x=names,
+            y=counts,
+            marker_color=["#2563EB", "#22C55E", "#F59E0B", "#8B5CF6"][: len(names)],
+            text=counts,
+            textposition="outside",
+        )
+    )
+    figure.update_layout(
+        title="Habits by category",
+        xaxis_title="Category",
+        yaxis_title="Number of habits",
+        yaxis=dict(dtick=1),
+        template="plotly_white",
+        height=350,
+        margin=dict(l=50, r=20, t=60, b=80),
+    )
+    return figure
