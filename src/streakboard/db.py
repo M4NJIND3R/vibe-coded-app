@@ -1,7 +1,8 @@
 import os
 import sqlite3
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
+import random
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -165,3 +166,71 @@ def undo_today_check_in(habit_id: int, check_in_date: Optional[date] = None) -> 
             (habit_id, today),
         )
         return cursor.rowcount > 0
+
+
+SAMPLE_HABITS = (
+    ("Morning Walk", "Walk outside for at least 20 minutes", "Health"),
+    ("Study Session", "Complete a focused study session", "Study"),
+    ("Deep Work", "Protect one block for focused work", "Work"),
+    ("Read Before Bed", "Read a book before sleeping", "Personal"),
+    ("Drink Water", "Drink enough water throughout the day", "Health"),
+)
+
+
+def load_sample_data(
+    today: Optional[date] = None,
+    replace_existing: bool = False,
+    seed: Optional[int] = None,
+) -> int:
+    reference_date = today or date.today()
+    rng = random.Random(seed)
+
+    with get_connection() as connection:
+        if replace_existing:
+            connection.execute("DELETE FROM check_ins")
+            connection.execute("DELETE FROM habits")
+
+        created = 0
+        for name, description, category in SAMPLE_HABITS:
+            cursor = connection.execute(
+                "INSERT INTO habits (name, description, category) VALUES (?, ?, ?)",
+                (name, description, category),
+            )
+            habit_id = int(cursor.lastrowid)
+            created += 1
+
+            completion_probability = rng.uniform(0.55, 0.82)
+            missed_run = 0
+            for offset in range(60):
+                check_in_date = reference_date - timedelta(days=59 - offset)
+                probability = completion_probability
+                if missed_run >= 3:
+                    probability += 0.25
+                if rng.random() < probability:
+                    connection.execute(
+                        """
+                        INSERT OR IGNORE INTO check_ins (habit_id, date)
+                        VALUES (?, ?)
+                        """,
+                        (habit_id, check_in_date.isoformat()),
+                    )
+                    missed_run = 0
+                else:
+                    missed_run += 1
+        return created
+
+
+def get_all_check_ins() -> list[sqlite3.Row]:
+    with get_connection() as connection:
+        return connection.execute(
+            """
+            SELECT
+                h.id AS habit_id,
+                h.name AS habit_name,
+                h.category AS category,
+                ci.date AS date
+            FROM check_ins AS ci
+            JOIN habits AS h ON h.id = ci.habit_id
+            ORDER BY ci.date DESC, h.name ASC
+            """
+        ).fetchall()

@@ -59,3 +59,43 @@ def test_delete_habit_removes_check_ins(tmp_path, monkeypatch):
 
     assert db.get_habits() == []
     assert db.get_check_in_dates(habit_id) == []
+
+
+def test_load_sample_data_creates_five_habits_and_sixty_day_history(tmp_path, monkeypatch):
+    database_path = tmp_path / "sample.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+
+    created = db.load_sample_data(
+        today=date(2026, 11, 23),
+        replace_existing=False,
+        seed=42,
+    )
+
+    habits = db.get_habits()
+    assert created == 5
+    assert len(habits) == 5
+    all_check_ins = db.get_all_check_ins()
+    assert all_check_ins
+    for habit in habits:
+        dates = db.get_check_in_dates(habit["id"])
+        assert dates
+        assert len(dates) <= 60
+        assert min(dates) >= "2026-09-25"
+        assert max(dates) <= "2026-11-23"
+
+
+def test_load_sample_data_can_replace_existing_data(tmp_path, monkeypatch):
+    database_path = tmp_path / "sample-replace.db"
+    monkeypatch.setattr(db, "DATABASE_PATH", str(database_path))
+    db.init_db()
+    db.add_habit("Existing", "Should be removed")
+    existing_id = db.get_habits()[0]["id"]
+    db.mark_habit_done(existing_id, date(2026, 11, 23))
+
+    db.load_sample_data(replace_existing=True, seed=7)
+
+    habits = db.get_habits()
+    assert len(habits) == 5
+    assert all(habit["name"] != "Existing" for habit in habits)
+    assert db.get_check_in_dates(existing_id) == []

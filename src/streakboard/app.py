@@ -1,5 +1,8 @@
 from datetime import date, timedelta
 
+import csv
+from io import StringIO
+
 import streamlit as st
 
 from .charts import (
@@ -13,10 +16,12 @@ from .db import (
     CATEGORIES,
     delete_habit,
     get_habits,
+    get_all_check_ins,
     get_check_in_dates,
     init_db,
     is_habit_done_today,
     mark_habit_done,
+    load_sample_data,
     undo_today_check_in,
     update_habit,
 )
@@ -216,6 +221,62 @@ def run() -> None:
 
     with manage_tab:
         st.subheader("Manage habits")
+        data_col, export_col = st.columns(2)
+
+        with data_col:
+            confirm_sample_key = "confirm_replace_sample_data"
+            if st.session_state.get(confirm_sample_key):
+                st.warning(
+                    "Load sample habits and replace all existing habits and check-ins?"
+                )
+                yes_col, no_col = st.columns(2)
+                if yes_col.button(
+                    "Yes, replace data",
+                    key="confirm_sample_yes",
+                    type="primary",
+                ):
+                    load_sample_data(replace_existing=True)
+                    st.session_state.pop(confirm_sample_key, None)
+                    st.success("Sample data loaded.")
+                    st.rerun()
+                if no_col.button("Cancel", key="confirm_sample_cancel"):
+                    st.session_state.pop(confirm_sample_key, None)
+                    st.rerun()
+            else:
+                if st.button("Load sample data", type="secondary"):
+                    if habits:
+                        st.session_state[confirm_sample_key] = True
+                        st.rerun()
+                    else:
+                        load_sample_data()
+                        st.success("Loaded 5 sample habits with 60 days of check-ins.")
+                        st.rerun()
+
+        with export_col:
+            check_ins = get_all_check_ins()
+            csv_output = StringIO()
+            csv_writer = csv.writer(csv_output)
+            csv_writer.writerow(["habit_id", "habit_name", "category", "date"])
+            for check_in in check_ins:
+                csv_writer.writerow(
+                    [
+                        check_in["habit_id"],
+                        check_in["habit_name"],
+                        check_in["category"],
+                        check_in["date"],
+                    ]
+                )
+            st.download_button(
+                "Download CSV",
+                data=csv_output.getvalue(),
+                file_name="streakboard_check_ins.csv",
+                mime="text/csv",
+                use_container_width=True,
+                disabled=not check_ins,
+                key="download_check_ins",
+            )
+
+        st.divider()
         if not habits:
             st.info("Nothing to manage yet. Add a habit from the sidebar.")
         else:

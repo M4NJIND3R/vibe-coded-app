@@ -171,3 +171,21 @@ Add a Manage tab where users can edit a habit's name, description, and category,
 - `PROMPT.md`
 
 **Problems or limitations:** None. Source compilation passed, all 17 tests passed, deletion-cascade behavior was covered, and the app health endpoint returned `200` with `ok`.
+
+## Prompt 9
+
+**Prompt (verbatim):**
+
+```text
+Add a "Load sample data" button that generates 5 sample habits with 60 days of realistic, randomized check-ins (don't overwrite existing data without confirmation), and a "Download CSV" button that exports all check-ins. Update PROMPT.md.
+```
+
+**Summary:** Added transactional sample-data loading for five realistic habits and randomized 60-day check-ins, with an explicit replacement confirmation when existing data exists. Added CSV export of all check-ins and disabled export when no check-ins exist.
+
+**Files created or changed:**
+- `src/streakboard/db.py`
+- `src/streakboard/app.py`
+- `tests/test_db_mutations.py`
+- `PROMPT.md`
+
+**Problems or limitations:** None. Source compilation passed, all 19 tests passed, and the app health endpoint returned `200` with `ok`.
